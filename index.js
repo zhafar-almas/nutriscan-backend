@@ -31,3 +31,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server NutriScan berjalan di http://localhost:${port}`);
 });
+
+module.exports = app;
