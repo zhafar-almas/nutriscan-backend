@@ -28,12 +28,5 @@ app.get('/', (req, res) => {
   res.send('Halo! Server backend NutriScan sudah menyala dan siap menerima data.');
 });
 
-// MODIFIKASI KHUSUS VERCEL: Jalankan server di port HANYA jika tidak sedang di Vercel (production)
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server NutriScan berjalan di http://localhost:${port}`);
-  });
-}
-
-// Ekspor app untuk digunakan oleh Vercel
+// Ekspor app untuk digunakan oleh Vercel (Hapus total app.listen)
 module.exports = app;
