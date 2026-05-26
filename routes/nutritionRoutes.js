@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer'); // 1. Memanggil library multer
 
 // 2. Konfigurasi Multer untuk menyimpan file sementara ke folder 'uploads/'
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/tmp' });
 
 // Memanggil fungsi dari controller dan middleware satpam
 const { 
