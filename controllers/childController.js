@@ -36,5 +36,28 @@ const tambahDataAnak = async (req, res) => {
   }
 };
 
-// Mengekspor fungsi agar bisa digunakan oleh Routes
-module.exports = { tambahDataAnak };
+// Fungsi untuk mengambil semua data anak
+const ambilDataAnak = async (req, res) => {
+  try {
+    // Child.find() akan mencari dan mengambil seluruh data dari koleksi anak di MongoDB
+    const daftarAnak = await Child.find();
+
+    // Memberikan jawaban sukses beserta datanya ke Front-End
+    res.status(200).json({
+      sukses: true,
+      pesan: 'Daftar data anak berhasil diambil!',
+      data: daftarAnak
+    });
+    
+  } catch (error) {
+    // Menangkap error jika database gagal merespons
+    res.status(500).json({
+      sukses: false,
+      pesan: 'Terjadi kesalahan pada server saat mengambil data',
+      error: error.message
+    });
+  }
+};
+
+// Mengekspor kedua fungsi agar bisa digunakan oleh Routes
+module.exports = { tambahDataAnak, ambilDataAnak };
