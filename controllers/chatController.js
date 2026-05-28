@@ -15,15 +15,18 @@ const handleGiziChat = async (req, res) => {
       });
     }
 
-    // Menggunakan model gemini-1.5-flash (cepat dan cocok untuk chat text)
-    // Kita berikan 'systemInstruction' agar AI fokus menjadi pakar gizi anak/MPASI
+    // MENGGUNAKAN MODEL GEMINI-PRO (Paling Stabil)
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
-      systemInstruction: "Anda adalah Asisten Gizi AI NutriScan. Tugas Anda adalah memberikan konsultasi menu MPASI personal, resep bubur sehat, jadwal makan anak, atau solusi keluhan gizi anak berbasis standar WHO. Berikan jawaban yang ramah, ringkas, informatif, mudah dipahami orang tua, dan gunakan bahasa Indonesia yang santun.",
+      model: "gemini-pro"
     });
 
-    // Kirim pesan dari user ke Gemini
-    const result = await model.generateContent(message);
+    // MENGGABUNGKAN INSTRUKSI SISTEM KE DALAM PROMPT
+    const prompt = `Anda adalah Asisten Gizi AI NutriScan. Tugas Anda adalah memberikan konsultasi menu MPASI personal, resep bubur sehat, jadwal makan anak, atau solusi keluhan gizi anak berbasis standar WHO. Berikan jawaban yang ramah, ringkas, informatif, mudah dipahami orang tua, dan gunakan bahasa Indonesia yang santun.
+
+Pertanyaan Pengguna: ${message}`;
+
+    // Kirim pesan ke Gemini
+    const result = await model.generateContent(prompt);
     const response = await result.response;
     const textBalasan = response.text();
 
