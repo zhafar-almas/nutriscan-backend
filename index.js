@@ -5,6 +5,9 @@ const cors = require('cors'); // Panggil library cors
 
 // 1. Memanggil file routes yang baru saja dibuat
 const childRoutes = require('./routes/childRoutes'); 
+// TAMBAHAN: Memanggil controller untuk fitur chat Gemini AI
+// (Pastikan path ini sesuai dengan tempat kamu menyimpan file chatController.js)
+const { handleGiziChat } = require('./controllers/chatController'); 
 
 dotenv.config();
 connectDB();
@@ -23,6 +26,9 @@ app.use(express.json());
 app.use('/api/children', childRoutes);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/nutrition', require('./routes/nutritionRoutes'));
+
+// TAMBAHAN: Mendaftarkan endpoint POST baru untuk chat Asisten Gizi AI
+app.post('/api/chat', handleGiziChat);
 
 app.get('/', (req, res) => {
   res.send('Halo! Server backend NutriScan sudah menyala dan siap menerima data.');
