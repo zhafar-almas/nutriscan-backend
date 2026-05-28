@@ -15,9 +15,8 @@ const handleGiziChat = async (req, res) => {
       });
     }
 
-    // MENGGUNAKAN MODEL GEMINI-PRO (Paling Stabil)
     const model = genAI.getGenerativeModel({
-      model: "gemini-pro"
+     model: "gemini-2.5-flash"
     });
 
     // MENGGABUNGKAN INSTRUKSI SISTEM KE DALAM PROMPT
