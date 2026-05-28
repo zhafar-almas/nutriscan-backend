@@ -59,5 +59,34 @@ const ambilDataAnak = async (req, res) => {
   }
 };
 
-// Mengekspor kedua fungsi agar bisa digunakan oleh Routes
-module.exports = { tambahDataAnak, ambilDataAnak };
+// Fungsi untuk menghapus data anak berdasarkan ID
+const hapusDataAnak = async (req, res) => {
+  try {
+    // Mencari dan menghapus data berdasarkan ID yang dikirim di URL
+    const anakDihapus = await Child.findByIdAndDelete(req.params.id);
+
+    // Jika ID tidak ditemukan di database
+    if (!anakDihapus) {
+      return res.status(404).json({
+        sukses: false,
+        pesan: 'Data profil anak tidak ditemukan!'
+      });
+    }
+
+    // Jika berhasil dihapus
+    res.status(200).json({
+      sukses: true,
+      pesan: 'Data profil anak berhasil dihapus!'
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      sukses: false,
+      pesan: 'Terjadi kesalahan pada server saat menghapus data',
+      error: error.message
+    });
+  }
+};
+
+// Mengekspor ketiga fungsi agar bisa digunakan oleh Routes
+module.exports = { tambahDataAnak, ambilDataAnak, hapusDataAnak };
