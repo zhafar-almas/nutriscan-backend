@@ -84,11 +84,11 @@ exports.analyzeFoodImage = async (req, res) => {
         const form = new FormData();
         form.append('file', fs.createReadStream(req.file.path));
 
-        // 4. Tembak API Python di localhost port 5000
-        // Mengambil URL dari .env, jika tidak ada (sedang di laptop), pakai localhost
-            const aiBaseUrl = process.env.AI_SERVER_URL || 'http://127.0.0.1:5000/predict';
+        // 4. Tembak API Python AI di Hugging Face
+        // Menggunakan URL default Hugging Face jika process.env.AI_SCAN_URL belum diatur
+        const aiBaseUrl = process.env.AI_SCAN_URL || 'https://suryapratama62474-nutriscan-api-backend.hf.space/scan';
 
-            const aiResponse = await axios.post(aiBaseUrl, form, {
+        const aiResponse = await axios.post(aiBaseUrl, form, {
             headers: {
                 ...form.getHeaders()
             }
@@ -97,7 +97,7 @@ exports.analyzeFoodImage = async (req, res) => {
         // Tangkap hasil dari AI
         const hasilGiziAI = aiResponse.data;
 
-        // 5. SIMPAN KE MONGOODB: Petakan hasil AI ke dalam skema database milikmu
+        // 5. SIMPAN KE MONGOODB: Petakan hasil AI ke dalam skema database
         const catatanNutrisiBaru = new Nutrition({
             childId: childId,
             nama_makanan: hasilGiziAI.nama_makanan,
@@ -110,8 +110,10 @@ exports.analyzeFoodImage = async (req, res) => {
         // Jalankan perintah save ke database
         await catatanNutrisiBaru.save();
 
-        // 6. Hapus file foto dari folder 'uploads' agar tidak memenuhi penyimpanan lokal
-        fs.unlinkSync(req.file.path);
+        // 6. Hapus file foto sementara agar tidak memenuhi penyimpanan server
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
 
         // 7. Kembalikan hasil sukses beserta data yang sudah tersimpan di DB
         res.status(201).json({
