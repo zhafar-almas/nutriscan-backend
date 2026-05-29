@@ -6,6 +6,7 @@ const cors = require('cors'); // Panggil library cors
 // 1. Memanggil file routes yang sudah dibuat
 const childRoutes = require('./routes/childRoutes'); 
 const dashboardRoutes = require('./routes/dashboardRoutes'); // TAMBAHAN: Memanggil file routes dashboard
+const growthRoutes = require('./routes/growthRoutes'); // TAMBAHAN BARU: Memanggil file routes pertumbuhan
 
 // TAMBAHAN: Memanggil controller untuk fitur chat Gemini AI
 const { handleGiziChat } = require('./controllers/chatController'); 
@@ -28,6 +29,7 @@ app.use('/api/children', childRoutes);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/nutrition', require('./routes/nutritionRoutes'));
 app.use('/api/dashboard', dashboardRoutes); // TAMBAHAN: Mendaftarkan alamat utama untuk fitur dashboard
+app.use('/api/growth', growthRoutes); // TAMBAHAN BARU: Mendaftarkan alamat utama untuk fitur pertumbuhan
 
 // TAMBAHAN: Mendaftarkan endpoint POST baru untuk chat Asisten Gizi AI
 app.post('/api/chat', handleGiziChat);
