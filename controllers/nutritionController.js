@@ -94,6 +94,9 @@ exports.analyzeFoodImage = async (req, res) => {
             }
         });
 
+        // TAMBAHKAN BARIS INI UNTUK DEBUGGING:
+        console.log("=== HASIL JSON DARI SERVER AI ===", aiResponse.data);
+
         // Tangkap hasil dari AI
         const hasilGiziAI = aiResponse.data;
 
