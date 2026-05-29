@@ -88,5 +88,50 @@ const hapusDataAnak = async (req, res) => {
   }
 };
 
-// Mengekspor ketiga fungsi agar bisa digunakan oleh Routes
-module.exports = { tambahDataAnak, ambilDataAnak, hapusDataAnak };
+// Fungsi untuk memperbarui (edit) data anak berdasarkan ID
+const editDataAnak = async (req, res) => {
+  try {
+    // Menangkap data baru yang dikirim oleh Front-End
+    const { nama, umur_bulan, jenis_kelamin, berat_badan_kg, tinggi_badan_cm } = req.body;
+
+    // Mencari anak berdasarkan ID dan memperbarui datanya
+    const anakDiupdate = await Child.findByIdAndUpdate(
+      req.params.id, 
+      {
+        nama,
+        umur_bulan,
+        jenis_kelamin,
+        berat_badan_kg,
+        tinggi_badan_cm
+      },
+      // { new: true } mengembalikan data yang SUDAH di-update, bukan data lama
+      // { runValidators: true } memastikan data baru tetap mengikuti aturan skema
+      { new: true, runValidators: true } 
+    );
+
+    // Jika ID tidak ditemukan di database
+    if (!anakDiupdate) {
+      return res.status(404).json({
+        sukses: false,
+        pesan: 'Data profil anak tidak ditemukan!'
+      });
+    }
+
+    // Jika berhasil diperbarui
+    res.status(200).json({
+      sukses: true,
+      pesan: 'Data profil anak berhasil diperbarui!',
+      data: anakDiupdate
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      sukses: false,
+      pesan: 'Terjadi kesalahan pada server saat memperbarui data',
+      error: error.message
+    });
+  }
+};
+
+// Mengekspor semua fungsi agar bisa digunakan oleh Routes
+module.exports = { tambahDataAnak, ambilDataAnak, hapusDataAnak, editDataAnak };
