@@ -100,14 +100,14 @@ exports.analyzeFoodImage = async (req, res) => {
         // Tangkap hasil dari AI
         const hasilGiziAI = aiResponse.data;
 
-        // 5. SIMPAN KE MONGOODB: Petakan hasil AI ke dalam skema database
+        // 5. SIMPAN KE MONGOODB: Petakan hasil AI ke dalam skema database yang sudah diperbaiki sesuai respon AI
         const catatanNutrisiBaru = new Nutrition({
             childId: childId,
-            nama_makanan: hasilGiziAI.nama_makanan,
-            kalori: hasilGiziAI.kalori,
-            karbohidrat_g: hasilGiziAI.karbohidrat,
-            protein_g: hasilGiziAI.protein,
-            lemak_g: hasilGiziAI.lemak
+            nama_makanan: hasilGiziAI.data.makanan,
+            kalori: hasilGiziAI.data.nutrisi.kalori,
+            karbohidrat_g: hasilGiziAI.data.nutrisi.karbohidrat,
+            protein_g: hasilGiziAI.data.nutrisi.protein,
+            lemak_g: hasilGiziAI.data.nutrisi.lemak
         });
 
         // Jalankan perintah save ke database
