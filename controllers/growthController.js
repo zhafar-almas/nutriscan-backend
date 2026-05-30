@@ -2,6 +2,31 @@ const Growth = require('../models/Growth');
 const Child = require('../models/Child');
 const ZScore = require('../models/ZScore'); // Tambahan: Model ZScore dari WHO
 
+// ==========================================
+// FUNGSI HELPER: SINKRONISASI OTOMATIS KE PROFIL
+// ==========================================
+const sinkronisasiProfilAnak = async (childId) => {
+    try {
+        // Cari 1 data pertumbuhan milik anak ini, urutkan dari usia_bulan TERBESAR (menurun)
+        const dataTerbaru = await Growth.findOne({ childId }).sort({ usia_bulan: -1 });
+
+        if (dataTerbaru) {
+            // Update profil anak dengan data yang usianya paling besar tersebut
+            await Child.findByIdAndUpdate(childId, {
+                umur_bulan: dataTerbaru.usia_bulan,
+                tinggi_badan_cm: dataTerbaru.tinggi_badan_cm,
+                berat_badan_kg: dataTerbaru.berat_badan_kg
+            });
+        }
+    } catch (error) {
+        console.error("Gagal sinkronisasi profil anak:", error.message);
+    }
+};
+
+// ==========================================
+// KONTROLER UTAMA
+// ==========================================
+
 // 1. POST: Menambah data pengukuran baru ke riwayat
 const tambahRiwayat = async (req, res) => {
   try {
@@ -53,6 +78,9 @@ const tambahRiwayat = async (req, res) => {
     });
     
     await riwayatBaru.save();
+
+    // F. JALANKAN SINKRONISASI SETELAH SAVE
+    await sinkronisasiProfilAnak(childId);
 
     res.status(201).json({
       sukses: true,
@@ -118,6 +146,9 @@ const editRiwayat = async (req, res) => {
         const updateData = await Growth.findByIdAndUpdate(id, updatePayload, { new: true });
 
         if (!updateData) return res.status(404).json({ pesan: "Data riwayat tidak ditemukan!" });
+
+        // JALANKAN SINKRONISASI SETELAH UPDATE
+        await sinkronisasiProfilAnak(updateData.childId);
         
         res.status(200).json({ sukses: true, pesan: "Data riwayat berhasil diperbarui!", data: updateData });
     } catch (error) {
@@ -132,6 +163,9 @@ const hapusRiwayat = async (req, res) => {
         const hapusData = await Growth.findByIdAndDelete(id);
 
         if (!hapusData) return res.status(404).json({ pesan: "Data riwayat tidak ditemukan!" });
+
+        // JALANKAN SINKRONISASI SETELAH DELETE
+        await sinkronisasiProfilAnak(hapusData.childId);
 
         res.status(200).json({ sukses: true, pesan: "Data riwayat berhasil dihapus!" });
     } catch (error) {
