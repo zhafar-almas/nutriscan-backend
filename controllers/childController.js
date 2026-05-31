@@ -7,8 +7,12 @@ const tambahDataAnak = async (req, res) => {
     // req.body adalah tempat berkumpulnya data yang dikirim oleh pengguna (Front-End)
     const { nama, umur_bulan, jenis_kelamin, berat_badan_kg, tinggi_badan_cm } = req.body;
 
+    // Ambil ID user yang sedang login dari token (req.user)
+    const userId = req.user.id; 
+
     // Membuat salinan data baru sesuai cetakan
     const anakBaru = new Child({
+      userId, // Menyambungkan data anak dengan user yang membuatnya
       nama,
       umur_bulan,
       jenis_kelamin,
@@ -39,8 +43,11 @@ const tambahDataAnak = async (req, res) => {
 // Fungsi untuk mengambil semua data anak
 const ambilDataAnak = async (req, res) => {
   try {
-    // Child.find() akan mencari dan mengambil seluruh data dari koleksi anak di MongoDB
-    const daftarAnak = await Child.find();
+    // PERBAIKAN: Ambil ID user dari token, lalu filter database berdasarkan ID tersebut
+    const userId = req.user.id;
+
+    // Child.find() sekarang hanya akan mengambil data anak milik user yang sedang login
+    const daftarAnak = await Child.find({ userId: userId });
 
     // Memberikan jawaban sukses beserta datanya ke Front-End
     res.status(200).json({
@@ -62,14 +69,16 @@ const ambilDataAnak = async (req, res) => {
 // Fungsi untuk menghapus data anak berdasarkan ID
 const hapusDataAnak = async (req, res) => {
   try {
-    // Mencari dan menghapus data berdasarkan ID yang dikirim di URL
-    const anakDihapus = await Child.findByIdAndDelete(req.params.id);
+    const userId = req.user.id;
 
-    // Jika ID tidak ditemukan di database
+    // PERBAIKAN: Mencari dan menghapus data berdasarkan ID anak DAN ID user (keamanan)
+    const anakDihapus = await Child.findOneAndDelete({ _id: req.params.id, userId: userId });
+
+    // Jika ID tidak ditemukan di database atau bukan milik user tersebut
     if (!anakDihapus) {
       return res.status(404).json({
         sukses: false,
-        pesan: 'Data profil anak tidak ditemukan!'
+        pesan: 'Data profil anak tidak ditemukan atau Anda tidak memiliki akses!'
       });
     }
 
@@ -93,10 +102,12 @@ const editDataAnak = async (req, res) => {
   try {
     // Menangkap data baru yang dikirim oleh Front-End
     const { nama, umur_bulan, jenis_kelamin, berat_badan_kg, tinggi_badan_cm } = req.body;
+    
+    const userId = req.user.id;
 
-    // Mencari anak berdasarkan ID dan memperbarui datanya
-    const anakDiupdate = await Child.findByIdAndUpdate(
-      req.params.id, 
+    // PERBAIKAN: Mencari anak berdasarkan ID anak DAN memastikan itu milik user yang sedang login
+    const anakDiupdate = await Child.findOneAndUpdate(
+      { _id: req.params.id, userId: userId }, 
       {
         nama,
         umur_bulan,
@@ -109,11 +120,11 @@ const editDataAnak = async (req, res) => {
       { new: true, runValidators: true } 
     );
 
-    // Jika ID tidak ditemukan di database
+    // Jika ID tidak ditemukan di database atau bukan milik user tersebut
     if (!anakDiupdate) {
       return res.status(404).json({
         sukses: false,
-        pesan: 'Data profil anak tidak ditemukan!'
+        pesan: 'Data profil anak tidak ditemukan atau Anda tidak memiliki akses!'
       });
     }
 

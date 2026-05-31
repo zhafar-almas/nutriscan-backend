@@ -52,13 +52,16 @@ exports.loginUser = async (req, res) => {
             expiresIn: '1d' // Tiket akan hangus dalam 1 hari
         });
 
+        // 4. Kirim response sukses berserta token dan userId
         res.status(200).json({ 
             sukses: true, 
             pesan: "Login berhasil!", 
-            token: token 
+            token: token,
+            userId: user._id // <--- INI TAMBAHANNYA
         });
 
     } catch (error) {
         res.status(500).json({ pesan: "Terjadi kesalahan server", error: error.message });
     }
 };
+// Pancingan untuk Vercel
