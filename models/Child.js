@@ -2,6 +2,12 @@ const mongoose = require('mongoose');
 
 // Membuat cetakan (schema) untuk profil anak
 const childSchema = new mongoose.Schema({
+  // TAMBAHAN: Mendaftarkan userId sebagai relasi ke model User
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
   nama: {
     type: String,
     required: true // Wajib diisi
