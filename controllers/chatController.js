@@ -1,14 +1,11 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Inisialisasi Gemini dengan API Key dari .env
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const handleGiziChat = async (req, res) => {
   try {
-    // SEKARANG KITA TANGKAP JUGA childData DARI FRONT-END
     const { message, childData } = req.body;
 
-    // Validasi: Pastikan Front-End mengirimkan pesan
     if (!message) {
       return res.status(400).json({
         sukses: false,
@@ -16,12 +13,10 @@ const handleGiziChat = async (req, res) => {
       });
     }
 
-    // Menggunakan model Gemini terbaru
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash"
     });
 
-    // MEMBUAT KONTEKS DATA ANAK (Jika dikirim oleh FE)
     let konteksAnak = "";
     if (childData) {
       konteksAnak = `
@@ -39,19 +34,16 @@ INSTRUKSI WAJIB UNTUK AI:
 `;
     }
 
-    // MENGGABUNGKAN INSTRUKSI SISTEM + KONTEKS ANAK + PERTANYAAN
     const prompt = `Anda adalah Asisten Gizi AI NutriScan. Tugas Anda adalah memberikan konsultasi menu MPASI personal, resep bubur sehat, jadwal makan anak, atau solusi keluhan gizi anak berbasis standar WHO. Berikan jawaban yang ramah, ringkas, informatif, mudah dipahami orang tua, dan gunakan bahasa Indonesia yang santun.
 
 ${konteksAnak}
 
 Pertanyaan Pengguna: ${message}`;
 
-    // Kirim pesan yang sudah diracik ke Gemini
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const textBalasan = response.text();
 
-    // Kembalikan jawaban ke Front-End
     return res.status(200).json({
       sukses: true,
       balasan: textBalasan

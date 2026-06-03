@@ -2,16 +2,11 @@ const Growth = require('../models/Growth');
 const Child = require('../models/Child');
 const ZScore = require('../models/ZScore'); // Tambahan: Model ZScore dari WHO
 
-// ==========================================
-// FUNGSI HELPER: SINKRONISASI OTOMATIS KE PROFIL
-// ==========================================
 const sinkronisasiProfilAnak = async (childId) => {
     try {
-        // Cari 1 data pertumbuhan milik anak ini, urutkan dari usia_bulan TERBESAR (menurun)
         const dataTerbaru = await Growth.findOne({ childId }).sort({ usia_bulan: -1 });
 
         if (dataTerbaru) {
-            // Update profil anak dengan data yang usianya paling besar tersebut
             await Child.findByIdAndUpdate(childId, {
                 umur_bulan: dataTerbaru.usia_bulan,
                 tinggi_badan_cm: dataTerbaru.tinggi_badan_cm,
@@ -23,33 +18,24 @@ const sinkronisasiProfilAnak = async (childId) => {
     }
 };
 
-// ==========================================
-// KONTROLER UTAMA
-// ==========================================
-
-// 1. POST: Menambah data pengukuran baru ke riwayat
 const tambahRiwayat = async (req, res) => {
   try {
     const { childId, usia_bulan, tinggi_badan_cm, berat_badan_kg } = req.body;
 
-    // A. Cari tahu jenis kelamin anak dari database Child
     const profilAnak = await Child.findById(childId);
     if (!profilAnak) {
       return res.status(404).json({ sukses: false, pesan: "Data anak tidak ditemukan!" });
     }
 
-    // B. Standardisasi format gender agar cocok dengan database WHO
     let genderUser = profilAnak.jenis_kelamin;
     if (genderUser.toLowerCase() === 'laki-laki') genderUser = 'Laki-Laki';
     if (genderUser.toLowerCase() === 'perempuan') genderUser = 'Perempuan';
 
-    // C. Tarik data batas ambang WHO dari database ZScore
     const dataWHO = await ZScore.findOne({ 
       Umur_Bulan: usia_bulan, 
       Jenis_Kelamin: genderUser 
     });
 
-    // D. Logic Engine Keputusan Klinis
     let statusKalkulasi = "Data WHO belum tersedia"; 
     
     if (dataWHO) {
@@ -68,18 +54,16 @@ const tambahRiwayat = async (req, res) => {
       }
     }
 
-    // E. Simpan data baru
     const riwayatBaru = new Growth({
       childId,
       usia_bulan,
       tinggi_badan_cm,
       berat_badan_kg,
-      status_gizi: statusKalkulasi // Hasil perhitungan otomatis masuk ke sini
+      status_gizi: statusKalkulasi 
     });
     
     await riwayatBaru.save();
 
-    // F. JALANKAN SINKRONISASI SETELAH SAVE
     await sinkronisasiProfilAnak(childId);
 
     res.status(201).json({
@@ -92,12 +76,10 @@ const tambahRiwayat = async (req, res) => {
   }
 };
 
-// 2. GET: Mengambil riwayat anak untuk di-render di tabel dan grafik
 const ambilRiwayat = async (req, res) => {
   try {
     const { childId } = req.params;
     
-    // Ambil data dan URUTKAN dari bulan terkecil ke terbesar
     const riwayat = await Growth.find({ childId }).sort({ usia_bulan: 1 });
 
     res.status(200).json({
@@ -110,13 +92,11 @@ const ambilRiwayat = async (req, res) => {
   }
 };
 
-// 3. PUT: Mengedit satu data riwayat pengukuran
 const editRiwayat = async (req, res) => {
     try {
         const { id } = req.params; 
         let updatePayload = req.body;
 
-        // Fitur Tambahan: Jika user mengubah Tinggi atau Usia, hitung ulang status gizinya!
         if (updatePayload.tinggi_badan_cm || updatePayload.usia_bulan) {
             const riwayatLama = await Growth.findById(id);
             if (!riwayatLama) return res.status(404).json({ pesan: "Data riwayat tidak ditemukan!" });
@@ -147,7 +127,6 @@ const editRiwayat = async (req, res) => {
 
         if (!updateData) return res.status(404).json({ pesan: "Data riwayat tidak ditemukan!" });
 
-        // JALANKAN SINKRONISASI SETELAH UPDATE
         await sinkronisasiProfilAnak(updateData.childId);
         
         res.status(200).json({ sukses: true, pesan: "Data riwayat berhasil diperbarui!", data: updateData });
@@ -156,7 +135,6 @@ const editRiwayat = async (req, res) => {
     }
 };
 
-// 4. DELETE: Menghapus satu data riwayat pengukuran
 const hapusRiwayat = async (req, res) => {
     try {
         const { id } = req.params; 
@@ -164,7 +142,6 @@ const hapusRiwayat = async (req, res) => {
 
         if (!hapusData) return res.status(404).json({ pesan: "Data riwayat tidak ditemukan!" });
 
-        // JALANKAN SINKRONISASI SETELAH DELETE
         await sinkronisasiProfilAnak(hapusData.childId);
 
         res.status(200).json({ sukses: true, pesan: "Data riwayat berhasil dihapus!" });
@@ -173,5 +150,4 @@ const hapusRiwayat = async (req, res) => {
     }
 };
 
-// Pastikan semua fungsi diekspor
 module.exports = { tambahRiwayat, ambilRiwayat, editRiwayat, hapusRiwayat };

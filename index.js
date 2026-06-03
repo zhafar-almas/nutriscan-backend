@@ -1,42 +1,34 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-const cors = require('cors'); // Panggil library cors
+const cors = require('cors'); 
 
-// 1. Memanggil file routes yang sudah dibuat
 const childRoutes = require('./routes/childRoutes'); 
-const dashboardRoutes = require('./routes/dashboardRoutes'); // TAMBAHAN: Memanggil file routes dashboard
-const growthRoutes = require('./routes/growthRoutes'); // TAMBAHAN BARU: Memanggil file routes pertumbuhan
+const dashboardRoutes = require('./routes/dashboardRoutes'); 
+const growthRoutes = require('./routes/growthRoutes'); 
 
-// TAMBAHAN: Memanggil controller untuk fitur chat Gemini AI
 const { handleGiziChat } = require('./controllers/chatController'); 
 
 dotenv.config();
 connectDB();
 
-// INISIALISASI APP DULU
 const app = express();
 const port = process.env.PORT || 3000;
 
-// BARU GUNAKAN MIDDLEWARE
-app.use(cors()); // Posisikan di sini!
+app.use(cors()); 
 
-// 2. WAJIB DITAMBAHKAN: Middleware agar server bisa membaca data JSON
 app.use(express.json());
 
-// 3. Mendaftarkan alamat API
 app.use('/api/children', childRoutes);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/nutrition', require('./routes/nutritionRoutes'));
-app.use('/api/dashboard', dashboardRoutes); // TAMBAHAN: Mendaftarkan alamat utama untuk fitur dashboard
-app.use('/api/growth', growthRoutes); // TAMBAHAN BARU: Mendaftarkan alamat utama untuk fitur pertumbuhan
+app.use('/api/dashboard', dashboardRoutes); 
+app.use('/api/growth', growthRoutes); 
 
-// TAMBAHAN: Mendaftarkan endpoint POST baru untuk chat Asisten Gizi AI
 app.post('/api/chat', handleGiziChat);
 
 app.get('/', (req, res) => {
   res.send('Halo! Server backend NutriScan sudah menyala dan siap menerima data.');
 });
 
-// Ekspor app untuk digunakan oleh Vercel (Hapus total app.listen)
 module.exports = app;

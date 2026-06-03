@@ -5,7 +5,6 @@ const growthSchema = new mongoose.Schema({
   usia_bulan: { type: Number, required: true },
   tinggi_badan_cm: { type: Number, required: true },
   berat_badan_kg: { type: Number, required: true },
-  // Status gizi sementara kita bebaskan diisi Front-End sambil nunggu API Data Science
   status_gizi: { type: String, default: 'Belum dihitung' } 
 }, { timestamps: true });
 

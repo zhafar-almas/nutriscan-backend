@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 
-// Membuat cetakan (schema) untuk profil anak
 const childSchema = new mongoose.Schema({
-  // TAMBAHAN: Mendaftarkan userId sebagai relasi ke model User
   userId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
@@ -10,15 +8,15 @@ const childSchema = new mongoose.Schema({
   },
   nama: {
     type: String,
-    required: true // Wajib diisi
+    required: true 
   },
   umur_bulan: {
     type: Number,
-    required: true // Disimpan dalam bulan agar akurat untuk balita
+    required: true 
   },
   jenis_kelamin: {
     type: String,
-    enum: ['Laki-laki', 'Perempuan'], // Hanya menerima dua pilihan ini
+    enum: ['Laki-laki', 'Perempuan'], 
     required: true
   },
   berat_badan_kg: {
@@ -30,8 +28,7 @@ const childSchema = new mongoose.Schema({
     required: true
   }
 }, {
-  timestamps: true // Otomatis mencatat kapan data dibuat dan diubah
+  timestamps: true 
 });
 
-// Mengekspor cetakan agar bisa digunakan di file lain
 module.exports = mongoose.model('Child', childSchema);
