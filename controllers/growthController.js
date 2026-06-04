@@ -1,6 +1,6 @@
 const Growth = require('../models/Growth');
 const Child = require('../models/Child');
-const ZScore = require('../models/ZScore'); // Tambahan: Model ZScore dari WHO
+const ZScore = require('../models/ZScore'); 
 
 const sinkronisasiProfilAnak = async (childId) => {
     try {
